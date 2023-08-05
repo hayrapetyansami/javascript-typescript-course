@@ -160,23 +160,23 @@ window.addEventListener("DOMContentLoaded", function () {
 	// 		this.changeToUAH();
 	// 	};
 
-		// changeToUAH() {
-		// 	this.price = this.price * this.transfer;
-		// };
+	// changeToUAH() {
+	// 	this.price = this.price * this.transfer;
+	// };
 
 	// 	render() {
 	// 		const { img, alt, title, descr, price, parent } = this;
 	// 		const element = document.createElement("div");
 	// 		element.classList.add("menu__item");
 	// 		element.innerHTML = `
-				// <img src=${img} alt=${alt}>
-				// <h3 class="menu__item-subtitle">${title}</h3>
-				// <div class="menu__item-descr">${descr}</div>
-				// <div class="menu__item-divider"></div>
-				// <div class="menu__item-price">
-				// 	<div class="menu__item-cost">Цена:</div>
-				// 	<div class="menu__item-total"><span>${price}</span> грн/день</div>
-				// </div>
+	// <img src=${img} alt=${alt}>
+	// <h3 class="menu__item-subtitle">${title}</h3>
+	// <div class="menu__item-descr">${descr}</div>
+	// <div class="menu__item-divider"></div>
+	// <div class="menu__item-price">
+	// 	<div class="menu__item-cost">Цена:</div>
+	// 	<div class="menu__item-total"><span>${price}</span> грн/день</div>
+	// </div>
 	// 		`;
 
 	// 		parent.append(element);
@@ -194,13 +194,13 @@ window.addEventListener("DOMContentLoaded", function () {
 	axios.get("http://localhost:8888/menu")
 		.then(request => createMenuCards(request.data));
 
-	function createMenuCards (data) {
+	function createMenuCards(data) {
 		data.forEach(({ img, altimg, title, descr, price }) => {
 			const element = document.createElement("div");
 			element.classList.add("menu__item");
 			const transfer = 27.59;
 
-			function changeToUAH () {
+			function changeToUAH() {
 				price = (parseFloat(price) * parseFloat(transfer)).toFixed(2);
 			};
 
@@ -226,7 +226,7 @@ window.addEventListener("DOMContentLoaded", function () {
 
 	const forms = document.querySelectorAll("form");
 
-	function spinner () {
+	function spinner() {
 		return `
 			<?xml version="1.0" encoding="utf-8"?>
 			<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="margin: auto; background: none; display: block; shape-rendering: auto;" width="38px" height="38px" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid">
@@ -291,7 +291,7 @@ window.addEventListener("DOMContentLoaded", function () {
 
 	forms.forEach(form => bindPostData(form));
 
-	async function postData (url, data) {
+	async function postData(url, data) {
 		const request = await fetch(url, {
 			method: "POST",
 			headers: {
@@ -307,7 +307,7 @@ window.addEventListener("DOMContentLoaded", function () {
 		return await request.json();
 	}
 
-	async function getData (url) {
+	async function getData(url) {
 		const request = await fetch(url);
 		if (!request.ok) {
 			throw new Error();
@@ -315,7 +315,7 @@ window.addEventListener("DOMContentLoaded", function () {
 		return await request.json();
 	}
 
-	function bindPostData (form) {
+	function bindPostData(form) {
 		form.addEventListener("submit", (e) => {
 			e.preventDefault();
 
@@ -333,24 +333,24 @@ window.addEventListener("DOMContentLoaded", function () {
 
 			const formData = new FormData(form);
 			// const data = JSON.stringify(Object.fromEntries(formData.entries()));
-			
+
 			// postData("http://localhost:8888/requests", data)
 			axios.post("http://localhost:8888/requests", Object.fromEntries(formData.entries()))
-			.then(data => {
-				console.log(data);
-				messagesModal(success);
-			})
-			.catch(err => {
-				messagesModal(failure + ": " + err);
-			})
-			.finally(() => {
-				loader.remove();
-				form.reset();
-			});
+				.then(data => {
+					console.log(data);
+					messagesModal(success);
+				})
+				.catch(err => {
+					messagesModal(failure + ": " + err);
+				})
+				.finally(() => {
+					loader.remove();
+					form.reset();
+				});
 		});
 	}
 
-	function messagesModal (message) {
+	function messagesModal(message) {
 		const prevModalDialog = document.querySelector(".modal__dialog");
 		prevModalDialog.classList.add("hide");
 		openModal();
@@ -373,4 +373,192 @@ window.addEventListener("DOMContentLoaded", function () {
 			closeModal();
 		}, 2000);
 	}
+
+	// slider
+	const slider = document.querySelector(".offer__slider");
+	const slides = document.querySelectorAll(".offer__slide");
+	const prev = document.querySelector(".offer__slider-prev");
+	const next = document.querySelector(".offer__slider-next");
+	const current = document.querySelector("#current");
+	const total = document.querySelector("#total");
+	const slidesWrapper = document.querySelector(".offer__slider-wrapper");
+	const slidesInner = document.querySelector(".offer__slider-inner");
+	const width = window.getComputedStyle(slidesWrapper).width;
+
+	let slideIndex = 1;
+	let offset = 0;
+
+	if (slides.length < 10) {
+		total.textContent = `0${slides.length}`;
+		current.textContent = `0${slideIndex}`;
+	} else {
+		total.textContent = slides.length;
+		current.textContent = slideIndex;
+	}
+
+	slidesInner.style.cssText = `
+		display: flex;
+		width: ${100 * slides.length}%;
+		transition: all .5s;
+	`;
+
+	slidesWrapper.style.overflow = "hidden";
+
+	slides.forEach(slide => {
+		slide.style.width = width;
+	});
+
+	slider.style.position = "relative";
+
+	const dots = [];
+	const dotsWrapper = document.createElement("ul");
+	dotsWrapper.style.cssText = `
+		position: absolute;
+		right: 0;
+		left: 0;
+		bottom: 0;
+		z-index: 15;
+		display: flex;
+		justify-content: center;
+		margin-left: 15%;
+		margin-right: 15%;
+		list-style: none;
+	`;
+	slider.append(dotsWrapper);
+
+	for (let i = 0; i < slides.length; i++) {
+		const dot = document.createElement("li");
+		dot.setAttribute("data-slide-to", i + 1);
+		dot.style.cssText = `
+			box-sizing: content-box;
+			flex: 0 1 auto;
+			width: 30px;
+			height: 6px;
+			margin-left: 3px;
+			margin-right: 3px;
+			cursor: pointer;
+			background-color: #fff;
+			background-clip: padding-box;
+			border-top: 10px solid transparent;
+			border-bottom: 10px solid transparent;
+			opacity: .5;
+			transition: opacity .5s;
+		`;
+
+		if (i === 0) {
+			dot.style.opacity = 1;
+		}
+		dotsWrapper.append(dot);
+		dots.push(dot);
+	}
+
+	next.addEventListener("click", () => {
+		if (offset === parseFloat(width.slice(0, width.length - 2)) * (slides.length - 1)) {
+			offset = 0;
+		} else {
+			offset += parseFloat(width.slice(0, width.length - 2));
+		}
+
+		slidesInner.style.transform = `translateX(-${offset}px)`;
+
+		if (slideIndex === slides.length || slideIndex >= slides.length) {
+			slideIndex = 1;
+		} else {
+			slideIndex++;
+		}
+
+		if (slides.length < 10) {
+			total.textContent = `0${slides.length}`;
+			current.textContent = `0${slideIndex}`;
+		} else {
+			total.textContent = slides.length;
+			current.textContent = slideIndex;
+		}
+
+		dots.forEach(dot => dot.style.opacity = 0.5);
+		dots[slideIndex - 1].style.opacity = 1;
+	});
+
+	prev.addEventListener("click", () => {
+		if (offset === 0) {
+			offset = parseFloat(width.slice(0, width.length - 2)) * (slides.length - 1);
+		} else {
+			offset -= parseFloat(width.slice(0, width.length - 2));
+		}
+
+		slidesInner.style.transform = `translateX(-${offset}px)`;
+
+		if (slideIndex === 1 || slideIndex <= 1) {
+			slideIndex = slides.length;
+		} else {
+			slideIndex--;
+		}
+
+		if (slides.length < 10) {
+			total.textContent = `0${slides.length}`;
+			current.textContent = `0${slideIndex}`;
+		} else {
+			total.textContent = slides.length;
+			current.textContent = slideIndex;
+		}
+
+		dots.forEach(dot => dot.style.opacity = 0.5);
+		dots[slideIndex - 1].style.opacity = 1;
+	});
+
+	dots.forEach(dot => {
+		dot.addEventListener("click", (e) => {
+			const slideTo = e.target.getAttribute("data-slide-to");
+			slideIndex = slideTo;
+			offset = parseFloat(width.slice(0, width.length - 2)) * (slideTo - 1);
+
+			slidesInner.style.transform = `translateX(-${offset}px)`;
+
+			if (slides.length < 10) {
+				total.textContent = `0${slides.length}`;
+				current.textContent = `0${slideIndex}`;
+			} else {
+				total.textContent = slides.length;
+				current.textContent = slideIndex;
+			}
+
+			dots.forEach(dot => dot.style.opacity = 0.5);
+			dots[slideIndex - 1].style.opacity = 1;
+		});
+	});
+
+	// let slideIndex = 1;
+	// showSlides(slideIndex);
+
+	// if (slides.length < 10) {
+	// 	total.textContent = `0${slides.length}`;
+	// } else {
+	// 	total.textContent = slides.length;
+	// }
+
+	// prev.addEventListener("click", () => slidesState(-1));
+	// next.addEventListener("click", () => slidesState(1));
+
+	// function showSlides (n) {
+	// 	if (n > slides.length) {
+	// 		slideIndex = 1;
+	// 	}
+
+	// 	if (n < 1) {
+	// 		slideIndex = slides.length;
+	// 	}
+
+	// 	slides.forEach(slide => slide.style.display = "none");
+	// 	slides[slideIndex - 1].style.display = "block";
+
+	// 	if (slides.length < 10) {
+	// 		current.textContent = `0${slideIndex}`;
+	// 	} else {
+	// 		current.textContent = slideIndex;
+	// 	}
+	// }
+
+	// function slidesState (n) {
+	// 	showSlides(slideIndex += n);
+	// }
 });
